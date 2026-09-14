@@ -1,8 +1,8 @@
-Webex Analytics
+# Webex Analytics
 
 Automatisierter Webex CDR Collector auf Ubuntu 24.04 mit Python, DuckDB, Parquet, systemd, Ansible und Vagrant.
 
-Architektur
+# Architektur
 Vagrant
 └── VirtualBox
     └── Ubuntu 24.04
@@ -18,7 +18,7 @@ Vagrant
                 ├── venv/
                 └── .env
 
-Komponenten
+# Komponenten
 Ubuntu 24.04
 Python 3.12
 Python virtual environment
@@ -30,7 +30,7 @@ Ansible
 Vagrant + VirtualBox
 Collector
 
-app/collector.py:
+# app/collector.py:
 
 Ruft Webex CDR-Daten über die Webex API ab.
 Verwendet ein Zeitfenster von 30 Minuten mit 2 Minuten Verzögerung.
@@ -38,7 +38,8 @@ Speichert die Raw API Response als JSON.
 Importiert CDRs in DuckDB.
 Verhindert Duplikate anhand der report_id.
 Aktualisiert data/parquet/cdr.parquet.
-Projektstruktur
+
+# Projektstruktur
 .
 ├── app/
 │   └── collector.py
@@ -58,7 +59,8 @@ Projektstruktur
 ├── .gitignore
 └── Vagrantfile
 
-Lokale Entwicklung
+
+# Lokale Entwicklung
 
 Voraussetzungen:
 
@@ -138,41 +140,7 @@ state/
 
 
 Die DuckDB-Struktur wird dagegen über Ansible aus
-
 ansible/roles/webex-analytics/files/schema.sql
-
-
 initialisiert.
 
-Deployment
-
-Das aktuelle lokale Deployment läuft über:
-
-Vagrant → VirtualBox → Ubuntu → Ansible
-
-
 Vagrant dient ausschließlich als lokale Entwicklungsumgebung.
-
-Das langfristige Ziel ist ein Cloud-Deployment, bei dem ein vorhandener Linux-Server ausschließlich mit Ansible konfiguriert wird.
-
-Geplant:
-
-Ansible Vault für Secrets
-Cloud-Server Deployment
-reproduzierbares Provisioning
-GitHub als zentrale Source of Truth
-Status
-
-Der lokale End-to-End-Test ist erfolgreich.
-
-Verifiziert:
-
-Webex API Zugriff
-Python Collector
-DuckDB
-DuckDB Schema
-Parquet-Erzeugung
-systemd Service
-systemd Timer
-Ansible Provisioning
-Vagrant Deployment
