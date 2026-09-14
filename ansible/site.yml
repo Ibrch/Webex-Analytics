@@ -1,0 +1,7 @@
+---
+- name: Configure Webex Analytics
+  hosts: all
+  become: true
+
+  roles:
+    - webex-analytics

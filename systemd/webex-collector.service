@@ -1,0 +1,12 @@
+[Unit]
+Description=Webex CDR Collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=vagrant
+Group=vagrant
+WorkingDirectory=/opt/webex-analytics
+ExecStart=/opt/webex-analytics/venv/bin/python /opt/webex-analytics/app/collector.py
+

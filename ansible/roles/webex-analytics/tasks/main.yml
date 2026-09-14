@@ -1,0 +1,110 @@
+---
+- name: Install required system packages
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-venv
+      - python3-pip
+    state: present
+    update_cache: true
+
+- name: Create application directory
+  ansible.builtin.file:
+    path: /opt/webex-analytics
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: "0755"
+
+- name: Create application subdirectories
+  ansible.builtin.file:
+    path: "/opt/webex-analytics/{{ item }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: "0755"
+  loop:
+    - app
+    - data
+    - data/raw
+    - data/parquet
+    - state
+
+- name: Copy requirements file
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../requirements.txt"
+    dest: /opt/webex-analytics/requirements.txt
+    owner: vagrant
+    group: vagrant
+    mode: "0644"
+
+- name: Create Python virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv /opt/webex-analytics/venv
+    creates: /opt/webex-analytics/venv/bin/python
+
+- name: Install Python dependencies
+  ansible.builtin.pip:
+    requirements: /opt/webex-analytics/requirements.txt
+    virtualenv: /opt/webex-analytics/venv
+
+- name: Deploy collector application
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../app/collector.py"
+    dest: /opt/webex-analytics/app/collector.py
+    owner: vagrant
+    group: vagrant
+    mode: "0755"
+
+- name: Deploy systemd service
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../systemd/webex-collector.service"
+    dest: /etc/systemd/system/webex-collector.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy systemd timer
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../systemd/webex-collector.timer"
+    dest: /etc/systemd/system/webex-collector.timer
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Stop Webex collector timer during deployment
+  ansible.builtin.systemd:
+    name: webex-collector.timer
+    state: stopped
+
+- name: Deploy DuckDB schema
+  ansible.builtin.copy:
+    src: schema.sql
+    dest: /opt/webex-analytics/schema.sql
+    owner: vagrant
+    group: vagrant
+    mode: "0644"
+
+- name: Initialize DuckDB schema
+  ansible.builtin.command:
+    cmd: >-
+      /opt/webex-analytics/venv/bin/python -c
+      "import duckdb;
+      db='/opt/webex-analytics/state/webex.duckdb';
+      schema=open('/opt/webex-analytics/schema.sql').read();
+      con=duckdb.connect(db);
+      exists=con.execute(\"SELECT COUNT(*) FROM duckdb_tables() WHERE table_name='cdr_raw'\").fetchone()[0];
+      con.execute(schema) if not exists else None;
+      con.close()"
+
+- name: Enable and start Webex collector timer
+  ansible.builtin.systemd:
+    name: webex-collector.timer
+    enabled: true
+    state: started
+
+

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Webex CDR Collector every 5 minutes
+
+[Timer]
+OnActiveSec=2min
+OnUnitActiveSec=5min
+Unit=webex-collector.service
+
+[Install]
+WantedBy=timers.target
+

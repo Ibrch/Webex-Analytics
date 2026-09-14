@@ -1,0 +1,20 @@
+# Secrets
+.env
+*.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Runtime data
+data/raw/
+data/parquet/
+state/
+
+# Vagrant
+.vagrant/
+
+# OS
+.DS_Store
+
