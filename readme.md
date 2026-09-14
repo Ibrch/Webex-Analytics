@@ -37,54 +37,17 @@ Aktualisiert data/parquet/cdr.parquet.
 Voraussetzungen:
 
 Vagrant
+
 VirtualBox
+
 
 Konfiguration:
 
-Der Webex API Token wird über .env bereitgestellt:
+erstelle .env mit deinem Token:
 
 WEBEX_TOKEN=your_token
-
-
-systemd
-
-Service:
-
-webex-collector.service
-
-
-Timer:
-
-webex-collector.timer
-
-
-Der Timer startet den Collector alle 5 Minuten.
-
-Status prüfen:
-
-systemctl status webex-collector.timer
-
-
-Timer anzeigen:
-
-systemctl list-timers --all | grep webex
-
-
-Logs:
-
-journalctl -u webex-collector.service -n 50 --no-pager
 
 
 Manueller Test:
 
 systemctl start webex-collector.service
-
-Daten
-
-Runtime-Daten werden nicht in Git versioniert.
-
-Die DuckDB-Struktur wird dagegen über Ansible aus
-ansible/roles/webex-analytics/files/schema.sql
-initialisiert.
-
-
